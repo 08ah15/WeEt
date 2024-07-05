@@ -133,7 +133,7 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
      */
     public function customModuleVersion(): string
     {
-        return '0.0.2';
+        return '0.0.3';
     }
 
     /**
@@ -153,7 +153,7 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
      */
     public function customModuleSupportUrl(): string
     {
-        return 'https://github.com/08ah15/WeEt//example-module';
+        return 'https://github.com/08ah15/WeEt/';
     }
 
     /**
