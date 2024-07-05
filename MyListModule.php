@@ -325,7 +325,7 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
         }
         
         
-        return $this->viewResponse('../../modules_v4/MyList/resources/views/page', [
+        return $this->viewResponse('../../modules_v4/MyList/resources/views/page.phtml', [
             'count_b'         => $count_b,
             'count_m'         => $count_m,
             'count_d'         => $count_d,
