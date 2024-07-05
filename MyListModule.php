@@ -143,7 +143,7 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
      */
     public function customModuleLatestVersionUrl(): string
     {
-        return 'https://localhost/modules_v4/MyList/latest-version.txt';
+        return 'https://github.com/08ah15/WeEt/latest-version.txt';
     }
 
     /**
@@ -153,7 +153,7 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
      */
     public function customModuleSupportUrl(): string
     {
-        return 'https://localhost/modules_v4/MyList/example-module';
+        return 'https://github.com/08ah15/WeEt//example-module';
     }
 
     /**
