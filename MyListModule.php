@@ -21,11 +21,13 @@ use Fisharebest\Webtrees\GedcomRecord;
 use Fisharebest\Webtrees\Registry;
 use Fisharebest\Webtrees\Tree;
 use Fisharebest\Webtrees\Validator;
+use Fisharebest\Webtrees\Repository;
 use Fisharebest\Webtrees\Services\LinkedRecordService;
 use Illuminate\Database\Capsule\Manager as DB;
 use Fig\Http\Message\RequestMethodInterface;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\JoinClause;
+use Illuminate\Database\Query\Expression;
 use Illuminate\Support\Collection;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -39,11 +41,6 @@ use function view;
 
 /**
  * Class ExampleModule
- *
- * This example shows how to create a custom module.
- * All the functions are optional.  Just implement the ones you need.
- *
- * Modules *must* implement ModuleCustomInterface.  They *may* also implement other interfaces.
  *
  * @author  Ansgar Häger <ansgar@haeger-dechent.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0 
@@ -113,7 +110,7 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
      */
     public function description(): string
     {
-        return I18N::translate('This module does not do anything');
+        return I18N::translate('This module list sources in an archive you like to see during your next visit');
     }
 
     /**
@@ -133,7 +130,7 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
      */
     public function customModuleVersion(): string
     {
-        return '0.0.3';
+        return '0.0.2.1';
     }
 
     /**
@@ -143,7 +140,7 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
      */
     public function customModuleLatestVersionUrl(): string
     {
-        return 'https://github.com/08ah15/WeEt/latest-version.txt';
+        return 'https://github.com/08ah15/WeEt/blob/main/latest-version.txt';
     }
 
     /**
@@ -273,9 +270,6 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
 
 
 
-
-
-
     /**
      * @param ServerRequestInterface $request
      *
@@ -300,6 +294,7 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
             return redirect($this->listUrl($tree, $params));
         }
 
+        $repos	  = $this -> allArchives($tree);
         $go      = Validator::queryParams($request)->boolean('go', false);
         $repo 	  = Validator::queryParams($request)->string('repo', '');
         $noObj   = Validator::queryParams($request)->boolean('noObj', false);
@@ -325,7 +320,8 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
         }
         
         
-        return $this->viewResponse('../../modules_v4/MyList/resources/views/page.phtml', [
+        return $this->viewResponse('../../modules_v4/MyList/resources/views/page', [
+        		'archives'			=> $repos,
             'count_b'         => $count_b,
             'count_m'         => $count_m,
             'count_d'         => $count_d,
@@ -340,6 +336,51 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
         ]);
 
     }
+
+
+   /**
+     * Generate a list of all the archives in a current tree.
+     *
+     * @param Tree $tree
+     *
+     * @return array<string>
+     */
+    private function allArchives(Tree $tree): array
+    {
+        $archives = DB::table('other')
+            ->where('o_file', '=', $tree->id())
+//            ->where('o_type', '=', Repository::RECORD_TYPE)
+            ->where('o_type', '=', 'REPO')
+            ->where('o_gedcom', 'like', '%@Standesamt@%')	
+            ->get()
+            ->map(Registry::repositoryFactory()->mapper($tree))
+            ->uniqueStrict()
+//            ->filter(GedcomRecord::accessFilter())
+
+            ; 
+//		  if ($archives->isEmpty){break;}	
+      $arch = [];  
+
+     
+
+        foreach ($archives as $archive) {      
+//        	  $archive->sortName();
+//			  array_push($archives,$archive->extractName()); 
+//			 $arch[] =   $archive->Repository::extractNames();  
+//			 echo $archive->fullName();
+			 $arch[] = $archive -> xref();
+        };    
+        $arch[]= 'Standesamt Remscheid';
+//        $arch[]= array('R11','Standesamt Dabringhausen');
+         
+        // Ensure we have an empty (top level) folder.
+        array_unshift($arch, '');
+        //Repository::extractNames()
+
+        return $arch;
+
+    }
+
 
      /**
      * Generate a list of all sources matching the criteria in a current tree.
@@ -400,6 +441,7 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
             ->filter(GedcomRecord::accessFilter());
 	 }
         
+
    
     
 }
