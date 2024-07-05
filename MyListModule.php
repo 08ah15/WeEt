@@ -287,7 +287,7 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
             $params = [
                 'go'      => true,
                 'repo'    => Validator::parsedBody($request)->string('repository'),
-                'noObj'   => true,
+                'noObj'   => Validator::parsedBody($request)->boolen('noObj',false),
                 'filter'  => true,
             ];
 
