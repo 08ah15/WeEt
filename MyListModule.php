@@ -408,14 +408,12 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
                     ->where('s_gedcom', 'LIKE', '%@'.$repo.'@%');
             });
         }    
-       // Apply sort ctriteria
-	     if ($noObj==1) {
-		      $query	->where(static function (Builder $query) use ($noObj): void {
-                $query
-                    ->where('s_gedcom', 'NOT LIKE', '%@OBJE@%');
+       // Apply filter ctriteria "object"
+	     if ($noObj) {
+                $query	       ->where('s_gedcom', 'NOT LIKE', '%OBJE%');
             });
        }
-       // Apply filter ctriteria
+       // Apply filter ctriteria "year"
 	     if ($restricted==1) {
 	     		$year 	 = date("Y");
 	     		switch ($cert){
