@@ -83,7 +83,7 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
     public const CUSTOM_AUTHOR      = 'Dr. Ansgar M. Häger';
     public const GITHUB_USER        = '08ah15';
     public const CUSTOM_WEBSITE     = 'https://github.com/' . self::GITHUB_USER . '/' . self::CUSTOM_MODULE . '/';
-    public const CUSTOM_VERSION     = '0.0.3.1';
+    public const CUSTOM_VERSION     = '0.0.3.2';
     public const CUSTOM_LAST        = 'https://raw.githubusercontent.com/' . self::GITHUB_USER . '/' .
                                             self::CUSTOM_MODULE . '/main/latest-version.txt';
 
