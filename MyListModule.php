@@ -40,7 +40,7 @@ use function route;
 use function view;
 
 /**
- * Class ExampleModule
+ * Class MyListModule
  *
  * @author  Ansgar Häger <ansgar@haeger-dechent.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0 
@@ -74,7 +74,21 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
 //        $this->linked_record_service = $linked_record_service;
     }
 
-    // Defaults
+
+    /**
+     * list of const for module administration
+     */
+    public const CUSTOM_TITLE       = 'MyList module';
+    public const CUSTOM_MODULE      = 'WeEt';             // tbd change to "...."
+    public const CUSTOM_AUTHOR      = 'Dr. Ansgar M. Häger';
+    public const GITHUB_USER        = '08ah15';
+    public const CUSTOM_WEBSITE     = 'https://github.com/' . self::GITHUB_USER . '/' . self::CUSTOM_MODULE . '/';
+    public const CUSTOM_VERSION     = '0.0.3.1';
+    public const CUSTOM_LAST        = 'https://raw.githubusercontent.com/' . self::GITHUB_USER . '/' .
+                                            self::CUSTOM_MODULE . '/main/latest-version.txt';
+
+	
+	// Defaults
 
 
 
@@ -99,7 +113,7 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
      */
     public function title(): string
     {
-        return I18N::translate('MyList module');
+        return I18N::translate(self::CUSTOM_TITLE);
     }
 
     /**
@@ -119,7 +133,7 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
      */
     public function customModuleAuthorName(): string
     {
-        return 'Ansgar M. Häger';
+        return self::CUSTOM_AUTHOR;
     }
 
     /**
@@ -129,7 +143,7 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
      */
     public function customModuleVersion(): string
     {
-        return '0.0.3.1';
+        return self::CUSTOM_VERSION;
     }
 
     /**
@@ -139,7 +153,7 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
      */
     public function customModuleLatestVersionUrl(): string
     {
-        return 'https://github.com/08ah15/WeEt/blob/main/latest-version.txt';
+        return self::CUSTOM_LAST;
     }
 
     /**
@@ -149,7 +163,7 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
      */
     public function customModuleSupportUrl(): string
     {
-        return 'https://github.com/08ah15/WeEt/';
+        return self::CUSTOM_WEBSITE;
     }
 
     /**
