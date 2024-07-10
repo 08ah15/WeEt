@@ -75,8 +75,7 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
     }
 
     // Defaults
-    protected const   noBje     = false;   
-    protected const   filter     = false;
+
 
 
     /**
@@ -130,7 +129,7 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
      */
     public function customModuleVersion(): string
     {
-        return '0.0.2.1';
+        return '0.0.3.1';
     }
 
     /**
