@@ -75,8 +75,7 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
     }
 
     // Defaults
-    protected const   noBje     = false;   
-    protected const   filter     = false;
+
 
 
     /**
@@ -130,7 +129,7 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
      */
     public function customModuleVersion(): string
     {
-        return '0.0.2.1';
+        return '0.0.3.1';
     }
 
     /**
@@ -287,7 +286,7 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
             $params = [
                 'go'      => true,
                 'repo'    => Validator::parsedBody($request)->string('repository'),
-                'noObj'   => true,
+                'noObj'   => Validator::parsedBody($request)->boolen('noObj',false),
                 'filter'  => true,
             ];
 
@@ -408,14 +407,12 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
                     ->where('s_gedcom', 'LIKE', '%@'.$repo.'@%');
             });
         }    
-       // Apply sort ctriteria
-	     if ($noObj==1) {
-		      $query	->where(static function (Builder $query) use ($noObj): void {
-                $query
-                    ->where('s_gedcom', 'NOT LIKE', '%@OBJE@%');
+       // Apply filter ctriteria "object"
+	     if ($noObj) {
+                $query	       ->where('s_gedcom', 'NOT LIKE', '%OBJE%');
             });
        }
-       // Apply filter ctriteria
+       // Apply filter ctriteria "year"
 	     if ($restricted==1) {
 	     		$year 	 = date("Y");
 	     		switch ($cert){
