@@ -364,11 +364,11 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
             ->where('o_file', '=', $tree->id())
 //            ->where('o_type', '=', Repository::RECORD_TYPE)
             ->where('o_type', '=', 'REPO')
-            ->where('o_gedcom', 'like', '%@Standesamt@%')	
+            ->where('o_gedcom', 'like', '%Standesamt%')	
             ->get()
             ->map(Registry::repositoryFactory()->mapper($tree))
             ->uniqueStrict()
-//            ->filter(GedcomRecord::accessFilter())
+            ->filter(GedcomRecord::accessFilter())
 
             ; 
 //		  if ($archives->isEmpty){break;}	
