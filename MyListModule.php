@@ -441,8 +441,8 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
 	     			break;
 	     		}
 		      $query	->where(static function (Builder $query) use ($yearaccessable): void {
-//                $query
-//                    ->where((int)substr('s_name',strpos('s_name','/',0),4) '<', $yearaccessable);
+                $query
+                    ->where((int)substr('s_name',strpos('s_name','/'),4) '<', $yearaccessable);
             });
         }        			
         return $query
