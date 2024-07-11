@@ -427,20 +427,20 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
             });
        }
        // Apply filter ctriteria "year"
-	     if ($restricted==1) {
-	     		$year 	 = date("Y");
+	     if ($restricted) {
+	     		$today 	 = date("Y");
 	     		switch ($cert){
 	     		case 'Geburtsurkunde%':
-	     			$yearaccessable = $year - 110;
+	     			$yearaccessable = $today - 110;
 	     			break;
 	     		case 'Heiratsurkunde%':
-	     			$yearaccessable = $year - 80;
+	     			$yearaccessable = $today - 80;
 	     			break;
 	     		case 'Sterbeurkunde%':
-	     			$yearaccessable = $year - 30;
+	     			$yearaccessable = $today - 30;
 	     			break;
 	     		}
-		      $query	->where(static function (Builder $query) use ($restricted): void {
+		      $query	->where(static function (Builder $query) use ($yearaccessable): void {
 //                $query
 //                    ->where((int)substr('s_name',strpos('s_name','/',0),4) '<', $yearaccessable);
             });
