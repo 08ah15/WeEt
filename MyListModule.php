@@ -365,6 +365,9 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
 //            ->where('o_type', '=', Repository::RECORD_TYPE)
             ->where('o_type', '=', 'REPO')
             ->where('o_gedcom', 'like', '%Standesamt%')	
+            ->orwhere('o_gedcom', 'like', '%Stadtarchiv%')	
+            ->orwhere('o_gedcom', 'like', '%Gemeindearchiv%')	
+
             ->get()
             ->map(Registry::repositoryFactory()->mapper($tree))
             ->uniqueStrict()
@@ -377,13 +380,13 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
      
 
         foreach ($archives as $archive) {      
-//        	  $archive->sortName();
+//        	  $archive->fullName();
 //			  array_push($archives,$archive->extractName()); 
-//			 $arch[] =   $archive->Repository::extractNames();  
+			 $arch[] =   $archive->fullNames();  
 //			 echo $archive->fullName();
-			 $arch[] = $archive -> xref();
+//			 $arch[] = $archive -> xref();
         };    
-        $arch[]= 'Standesamt Remscheid';
+//        $arch[]= 'Standesamt Remscheid';
 //        $arch[]= array('R11','Standesamt Dabringhausen');
          
         // Ensure we have an empty (top level) folder.
