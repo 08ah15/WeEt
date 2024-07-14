@@ -426,9 +426,8 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
      *
      * @param Tree   $tree       find sources in this tree
      * @param string $repo       repository to search
-     * @param string $cert			leading string in source title making it as birth, marriage or death certificate
+     * @param string $cert		 leading string in source title marking it as birth, marriage or death certificate
      * @param bool   $sort       only show sources with or without media object
-     * @param bool   $filter     optional filter for accessability under German rules
 
      *
      * @return Collection<int,Source>
