@@ -54,7 +54,7 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
 
     
     //protected const ROUTE_URL  = '/tree/{tree}/MyList-{repository}/{xref}';
-    protected const ROUTE_URL = '/tree/{tree}/MyList';
+    protected const ROUTE_URL = '/tree/{tree}/WeEt';
 
     private LinkedRecordService $linked_record_service;
 
@@ -83,7 +83,7 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
     public const CUSTOM_AUTHOR      = 'Dr. Ansgar M. Häger';
     public const GITHUB_USER        = '08ah15';
     public const CUSTOM_WEBSITE     = 'https://github.com/' . self::GITHUB_USER . '/' . self::CUSTOM_MODULE . '/';
-    public const CUSTOM_VERSION     = '0.0.3.2';
+    public const CUSTOM_VERSION     = '0.0.3.3';
     public const CUSTOM_LAST        = 'https://raw.githubusercontent.com/' . self::GITHUB_USER . '/' .
                                             self::CUSTOM_MODULE . '/blob/main/latest-version.txt';
 
@@ -300,8 +300,8 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
             $params = [
                 'go'      => true,
                 'repo'    => Validator::parsedBody($request)->string('repository'),
-                'noObj'   => Validator::parsedBody($request)->boolen('noObj',false),
-                'filter'  => true,
+                'noObj'   => Validator::parsedBody($request)->boolen('noObj',true),
+                'filter'  => Validator::parsedBody($request)->boolean('filter', true),
             ];
 
             return redirect($this->listUrl($tree, $params));
@@ -310,18 +310,21 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
         $repos	  = $this -> allArchives($tree);
         $go      = Validator::queryParams($request)->boolean('go', false);
         $repo 	  = Validator::queryParams($request)->string('repo', '');
-        $noObj   = Validator::queryParams($request)->boolean('noObj', false);
-        $filter  = Validator::queryParams($request)->boolean('filter', false);
+        $noObj   = Validator::queryParams($request)->boolean('noObj', true);
+        $filter  = Validator::queryParams($request)->boolean('filter', true);
 		
        
          
         if ($go) {
-				$births 		= $this->SourcesInRepo($tree, $repo,'Geburtsurkunde%', $noObj, $filter);
-				$marriages 	= $this->SourcesInRepo($tree, $repo,'Heiratsurkunde%', $noObj, $filter);
-				$deaths 		= $this->SourcesInRepo($tree, $repo,'Sterbeurkunde%', $noObj, $filter);
-	         $count_b 	= $births->count();      
-	         $count_m 	= $marriages->count();      
-	         $count_d 	= $deaths->count();                 			
+		$births 	= $this->SourcesInRepo($tree, $repo,'Geburtsurkunde%', $noObj);
+		if($filter){$births = $this->sfilter($births,110);};
+		$marriages 	= $this->SourcesInRepo($tree, $repo,'Heiratsurkunde%', $noObj);
+		if($filter){$marriages = $this->sfilter($marriages,80);};
+		$deaths 	= $this->SourcesInRepo($tree, $repo,'Sterbeurkunde%', $noObj);
+		if($filter){$deaths = $this->sfilter($deaths,30);};
+	        $count_b 	= $births->count();      
+	        $count_m 	= $marriages->count();      
+	        $count_d 	= $deaths->count();                 			
         }
         else {
             $births 		= new Collection();
@@ -364,11 +367,14 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
             ->where('o_file', '=', $tree->id())
 //            ->where('o_type', '=', Repository::RECORD_TYPE)
             ->where('o_type', '=', 'REPO')
-            ->where('o_gedcom', 'like', '%@Standesamt@%')	
+            ->where('o_gedcom', 'like', '%Standesamt%')	
+            ->orwhere('o_gedcom', 'like', '%Stadtarchiv%')	
+            ->orwhere('o_gedcom', 'like', '%Gemeindearchiv%')	
+
             ->get()
             ->map(Registry::repositoryFactory()->mapper($tree))
             ->uniqueStrict()
-//            ->filter(GedcomRecord::accessFilter())
+            ->filter(GedcomRecord::accessFilter())
 
             ; 
 //		  if ($archives->isEmpty){break;}	
@@ -377,13 +383,13 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
      
 
         foreach ($archives as $archive) {      
-//        	  $archive->sortName();
+//        	  $archive->fullName();
 //			  array_push($archives,$archive->extractName()); 
-//			 $arch[] =   $archive->Repository::extractNames();  
+			 $arch[] =   $archive->fullNames();  
 //			 echo $archive->fullName();
-			 $arch[] = $archive -> xref();
+//			 $arch[] = $archive -> xref();
         };    
-        $arch[]= 'Standesamt Remscheid';
+//        $arch[]= 'Standesamt Remscheid';
 //        $arch[]= array('R11','Standesamt Dabringhausen');
          
         // Ensure we have an empty (top level) folder.
@@ -394,57 +400,55 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
 
     }
 
+	
+   /**
+     * Filter Collection of sources.
+     *
+     * @param Collection $collect
+     * @param int $grace
+     *
+     * @return Collection
+     */
+    private function sfilter(Collection $collect,int $grace): Collection
+    {
+	$filtered_sources = new Collection();
+        foreach($collect as $source){
+        	 if((int)substr($source->fullName(), (strpos($source->fullName(),'/')+1),4) < date('Y')-$grace) {
+	        	 $filtered_sources[]=$source;        	 		
+        	 }
+        }
+        return $filtered_sources;	
+    }
 
+	
      /**
      * Generate a list of all sources matching the criteria in a current tree.
      *
      * @param Tree   $tree       find sources in this tree
      * @param string $repo       repository to search
-     * @param string $cert			leading string in source title making it as birth, marriage or death certificate
+     * @param string $cert		 leading string in source title marking it as birth, marriage or death certificate
      * @param bool   $sort       only show sources with or without media object
-     * @param bool   $filter     optional filter for accessability under German rules
 
      *
      * @return Collection<int,Source>
      */
-  	 private function SourcesInRepo(Tree $tree, string $repo, string $cert, bool $noObj, bool $restricted): Collection
-	 {
-		  $year 	 = date("Y");
-		  
-        $query	 = DB::table('sources')
+     private function SourcesInRepo(Tree $tree, string $repo, string $cert, bool $noObj): Collection
+     {
+	$query	 = DB::table('sources')
             			->where('s_file', '=', $tree->id())
             			->where('s_name', 'LIKE' ,$cert);
        // Apply search terms
 	     if ($repo !== '') {
-		      $query	->where(static function (Builder $query) use ($repo): void {
-                $query
-                    ->where('s_gedcom', 'LIKE', '%@'.$repo.'@%');
-            });
-        }    
+		$query	->where(static function (Builder $query) use ($repo): void {
+                	$query
+                    		->where('s_gedcom', 'LIKE', '%@'.$repo.'@%');
+            	});
+             }    
        // Apply filter ctriteria "object"
 	     if ($noObj) {
                 $query	       ->where('s_gedcom', 'NOT LIKE', '%OBJE%');
-            });
-       }
-       // Apply filter ctriteria "year"
-	     if ($restricted==1) {
-	     		$year 	 = date("Y");
-	     		switch ($cert){
-	     		case 'Geburtsurkunde%':
-	     			$yearaccessable = $year - 110;
-	     			break;
-	     		case 'Heiratsurkunde%':
-	     			$yearaccessable = $year - 80;
-	     			break;
-	     		case 'Sterbeurkunde%':
-	     			$yearaccessable = $year - 30;
-	     			break;
-	     		}
-		      $query	->where(static function (Builder $query) use ($restricted): void {
-//                $query
-//                    ->where((int)substr('s_name',strpos('s_name','/',0),4) '<', $yearaccessable);
-            });
-        }        			
+             }
+		 
         return $query
             ->get()
             ->map(Registry::sourceFactory()->mapper($tree))
