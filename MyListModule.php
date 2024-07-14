@@ -433,11 +433,9 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
      *
      * @return Collection<int,Source>
      */
-  	 private function SourcesInRepo(Tree $tree, string $repo, string $cert, bool $noObj): Collection
-	 {
-		  $year 	 = date("Y");
-		  
-        $query	 = DB::table('sources')
+     private function SourcesInRepo(Tree $tree, string $repo, string $cert, bool $noObj): Collection
+     {
+	$query	 = DB::table('sources')
             			->where('s_file', '=', $tree->id())
             			->where('s_name', 'LIKE' ,$cert);
        // Apply search terms
