@@ -76,7 +76,7 @@ use Illuminate\Support\Collection;
     <p class="text-center mt-4"><?= I18N::translate('Sources found about births:') ?> <?= I18N::number($count_b) ?>
     									  <?= I18N::translate(', about marriages:') ?> <?= I18N::number($count_m) ?>
     									  <?= I18N::translate(', about deaths:') ?> <?= I18N::number($count_d) ?></p>
-    <p class="text-center mt-4"><?= I18N::translate('Repository') ?> <?php echo ' '.$repository.' '.$noObj.' '.$filter ?></p>
+    <p class="text-center mt-4"><?= I18N::translate('Repository') ?> <?php echo ' '.$repository ?></p>
     <?php if ($sources_b->isNotEmpty()) : ?>
         <?= view('../../modules_v4/WeEt/resources/views/source-list/page', [
 				'sources'		=> $sources_b,
