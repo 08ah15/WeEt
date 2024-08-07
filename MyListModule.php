@@ -328,7 +328,7 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
         }
         else {
             $births 		= new Collection();
-            $marriages 	= new Collection();
+            $marriages 		= new Collection();
             $deaths 		= new Collection();
 	         $count_b 	= 0;      
 	         $count_m 	= 0;      
@@ -337,18 +337,18 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
         
         
         return $this->viewResponse('../../modules_v4/WeEt/resources/views/page', [
-        		'archives'			=> $repos,
-            'count_b'         => $count_b,
-            'count_m'         => $count_m,
-            'count_d'         => $count_d,
-            'repository'   	=> $repo,
-				'sources_b'			=> $births,
-				'sources_m'			=> $marriages,
-				'sources_d'			=> $deaths,
-				'noObj'				=> $noObj,
-				'filter'				=> $filter,			
-            'title'     		=> I18N::translate('Sources'),
-            'tree'      		=> $tree,
+        	'archives'		=> $repos,
+        	'count_b'         	=> $count_b,
+        	'count_m'         	=> $count_m,
+        	'count_d'         	=> $count_d,
+        	'repository'   		=> $repo,
+		'sources_b'		=> $births,
+		'sources_m'		=> $marriages,
+		'sources_d'		=> $deaths,
+		'noObj'			=> $noObj,
+		'filter'		=> $filter,			
+            	'title'     		=> I18N::translate('Sources'),
+            	'tree'      		=> $tree,
         ]);
 
     }
@@ -365,8 +365,7 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
     {
         $archives = DB::table('other')
             ->where('o_file', '=', $tree->id())
-//            ->where('o_type', '=', Repository::RECORD_TYPE)
-            ->where('o_type', '=', 'REPO')
+            ->where('o_type', '=', Repository::RECORD_TYPE)
             ->where('o_gedcom', 'like', '%Standesamt%')	
             ->orwhere('o_gedcom', 'like', '%Stadtarchiv%')	
             ->orwhere('o_gedcom', 'like', '%Gemeindearchiv%')	
@@ -378,11 +377,11 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
 
             ; 
 //		  if ($archives->isEmpty){break;}	
-      $arch = [];  
+//      $arch = [];  
 
      
 
-        foreach ($archives as $archive) {      
+//        foreach ($archives as $archive) {      
 //        	  $archive->fullName();
 //			  array_push($archives,$archive->extractName()); 
 			 $arch[] =   $archive->fullNames();  
@@ -393,10 +392,10 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
 //        $arch[]= array('R11','Standesamt Dabringhausen');
          
         // Ensure we have an empty (top level) folder.
-        array_unshift($arch, '');
+//        array_unshift($arch, '');
         //Repository::extractNames()
 
-        return $arch;
+        return $archives;
 
     }
 
@@ -412,11 +411,13 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
     private function sfilter(Collection $collect,int $grace): Collection
     {
 	$filtered_sources = new Collection();
-        foreach($collect as $source){
-        	 if((int)substr($source->fullName(), (strpos($source->fullName(),'/')+1),4) < date('Y')-$grace) {
-	        	 $filtered_sources[]=$source;        	 		
-        	 }
-        }
+       	foreach($collect as $source){
+       		$year = mysource::getYear($source);
+        	if($year < date('Y')-$grace) {
+	        	 $filtered_sources[] = $source; 		
+        	}
+       	}
+  	$results = $filtered_sources;
         return $filtered_sources;	
     }
 
@@ -432,31 +433,46 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
      *
      * @return Collection<int,Source>
      */
-     private function SourcesInRepo(Tree $tree, string $repo, string $cert, bool $noObj): Collection
+     private function SourcesInRepo(Tree $tree, string $repo, string $cert, bool $without, bool $restricted): Collection
      {
-	$query	 = DB::table('sources')
-            			->where('s_file', '=', $tree->id())
-            			->where('s_name', 'LIKE' ,$cert);
+	$year	= date('Y');
+	$query	= DB::table('sources')
+            		->where('s_file', '=', $tree->id())
+            		->where('s_name', 'LIKE' ,$cert);
        // Apply search terms
-	     if ($repo !== '') {
+	if ($repo !== '') {	
 		$query	->where(static function (Builder $query) use ($repo): void {
-                	$query
-                    		->where('s_gedcom', 'LIKE', '%@'.$repo.'@%');
+                	$query	->where('s_gedcom', 'LIKE', '%@'.$repo.'@%');
             	});
-             }    
+        }    
        // Apply filter ctriteria "object"
-	     if ($noObj) {
-                $query	       ->where('s_gedcom', 'NOT LIKE', '%OBJE%');
-             }
+	if ($without) {
+                $query	->where('s_gedcom', 'NOT LIKE', '%OBJE%');
+        }
 		 
         return $query
             ->get()
             ->map(Registry::sourceFactory()->mapper($tree))
             ->uniqueStrict()
             ->filter(GedcomRecord::accessFilter());
-	 }
-        
-
-   
-    
+	 }        
 }
+
+class mysource extends source
+{
+
+   /**
+     * Get year of sources publication.
+     *
+     * @param source $source
+     *
+     * @return int
+     */
+    static function getYear(GedcomRecord $source):int
+    {
+	    $year = (int)substr($source->fullName(), (strpos($source->fullName(),'/')+1),4);        	 		
+       return $year;	
+	 }
+
+};
+
