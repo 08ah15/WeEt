@@ -362,21 +362,21 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
      *
      * @return array<string>
      */
-    private function allArchives(Tree $tree): array
-    {
-        $archives = DB::table('other')
-            ->where('o_file', '=', $tree->id())
-            ->where('o_type', '=', Repository::RECORD_TYPE)
-            ->where('o_gedcom', 'like', '%Standesamt%')	
-            ->orwhere('o_gedcom', 'like', '%Stadtarchiv%')	
-            ->orwhere('o_gedcom', 'like', '%Gemeindearchiv%')	
+//    private function allArchives(Tree $tree): array
+//    {
+//        $archives = DB::table('other')
+//            ->where('o_file', '=', $tree->id())
+//            ->where('o_type', '=', Repository::RECORD_TYPE)
+//            ->where('o_gedcom', 'like', '%Standesamt%')	
+//            ->orwhere('o_gedcom', 'like', '%Stadtarchiv%')	
+//            ->orwhere('o_gedcom', 'like', '%Gemeindearchiv%')	
 
-            ->get()
-            ->map(Registry::repositoryFactory()->mapper($tree))
-            ->uniqueStrict()
-            ->filter(GedcomRecord::accessFilter())
+//            ->get()
+//            ->map(Registry::repositoryFactory()->mapper($tree))
+//            ->uniqueStrict()
+//            ->filter(GedcomRecord::accessFilter())
 
-            ; 
+//            ; 
 //		  if ($archives->isEmpty){break;}	
 //      $arch = [];  
 
@@ -396,9 +396,9 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
 //        array_unshift($arch, '');
         //Repository::extractNames()
 
-        return $archives;
+//        return $archives;
 
-    }
+//    }
 
 	
    /**
