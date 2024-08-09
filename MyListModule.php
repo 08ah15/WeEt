@@ -387,7 +387,7 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
 			 $arch[] =   $archive->fullNames();  
 //			 echo $archive->fullName();
 //			 $arch[] = $archive -> xref();
-        };    
+//        };    
 //        $arch[]= 'Standesamt Remscheid';
 //        $arch[]= array('R11','Standesamt Dabringhausen');
          
