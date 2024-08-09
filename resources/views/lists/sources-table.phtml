@@ -100,7 +100,7 @@ $count_notes = DB::table('other')
         <?php foreach ($sources as $source) : ?>
             <tr class="<?= $source->isPendingAddition() ? 'wt-new' : '' ?> <?= $source->isPendingDeletion() ? 'wt-old' : '' ?>">
                 <!-- Title -->
-                <td data-sort="<?= e($source->sortName()) ?>"> 
+                <td class="d-none d-md-table-cell"> 
                     <a href="<?= e($source->url()) ?>">
                         <?= $source->fullName() ?>
                     </a>
