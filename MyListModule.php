@@ -22,6 +22,7 @@ use Fisharebest\Webtrees\Registry;
 use Fisharebest\Webtrees\Tree;
 use Fisharebest\Webtrees\Validator;
 use Fisharebest\Webtrees\Repository;
+use Fisharebest\Webtrees\Source;
 use Fisharebest\Webtrees\Services\LinkedRecordService;
 use Illuminate\Database\Capsule\Manager as DB;
 use Fig\Http\Message\RequestMethodInterface;
