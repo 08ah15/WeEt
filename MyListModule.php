@@ -385,7 +385,7 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
 //        foreach ($archives as $archive) {      
 //        	  $archive->fullName();
 //			  array_push($archives,$archive->extractName()); 
-			 $arch[] =   $archive->fullNames();  
+//			 $arch[] =   $archive->fullNames();  
 //			 echo $archive->fullName();
 //			 $arch[] = $archive -> xref();
 //        };    
