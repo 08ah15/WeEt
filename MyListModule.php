@@ -327,7 +327,8 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
 	        $count_b 	= $births->count();      
 	        $count_m 	= $marriages->count();      
 	        $count_d 	= $deaths->count();  
-		$rname = //$repo->fullname;
+		$rname = 'test';
+			//$repo->fullname;
         }
         else {
             $births 		= new Collection();
