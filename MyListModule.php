@@ -84,7 +84,7 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
     public const CUSTOM_AUTHOR      = 'Dr. Ansgar M. Häger';
     public const GITHUB_USER        = '08ah15';
     public const CUSTOM_WEBSITE     = 'https://github.com/' . self::GITHUB_USER . '/' . self::CUSTOM_MODULE . '/';
-    public const CUSTOM_VERSION     = '0.0.3.4';
+    public const CUSTOM_VERSION     = '0.0.3.5';
     public const CUSTOM_LAST        = 'https://raw.githubusercontent.com/' . self::GITHUB_USER . '/' .
                                             self::CUSTOM_MODULE . '/blob/main/latest-version.txt';
 
@@ -362,7 +362,7 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
      *
      * @return array<string>
      */
-    private function allArchives(Tree $tree): array
+    private function allArchives(Tree $tree): Collection
     {
         $archives = DB::table('other')
             ->where('o_file', '=', $tree->id())
@@ -375,12 +375,9 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
             ->map(Registry::repositoryFactory()->mapper($tree))
 //            ->uniqueStrict()
             ->filter(GedcomRecord::accessFilter())
-
             ; 
 //		  if ($archives->isEmpty){break;}	
-//      $arch = [];  
-
-     
+//      $arch = [];      
 
 //        foreach ($archives as $archive) {      
 //        	  $archive->fullName();
