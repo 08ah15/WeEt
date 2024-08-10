@@ -432,7 +432,7 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
      *
      * @return Collection<int,Source>
      */
-     private function SourcesInRepo(Tree $tree, string $repo, string $cert, bool $without, bool $restricted): Collection
+     private function SourcesInRepo(Tree $tree, string $repo, string $cert, bool $without): Collection
      {
 	$year	= date('Y');
 	$query	= DB::table('sources')
