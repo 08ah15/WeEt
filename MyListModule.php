@@ -23,6 +23,7 @@ use Fisharebest\Webtrees\Tree;
 use Fisharebest\Webtrees\Validator;
 use Fisharebest\Webtrees\Repository;
 use Fisharebest\Webtrees\Source;
+use Fisharebest\Webtrees\Fact;
 use Fisharebest\Webtrees\Services\LinkedRecordService;
 use Illuminate\Database\Capsule\Manager as DB;
 use Fig\Http\Message\RequestMethodInterface;
@@ -325,7 +326,8 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
 		if($filter){$deaths = $this->sfilter($deaths,30);};
 	        $count_b 	= $births->count();      
 	        $count_m 	= $marriages->count();      
-	        $count_d 	= $deaths->count();                 			
+	        $count_d 	= $deaths->count();  
+		$rname = $repo->fullname;
         }
         else {
             $births 		= new Collection();
@@ -343,6 +345,7 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
         	'count_m'         	=> $count_m,
         	'count_d'         	=> $count_d,
         	'repository'   		=> $repo,
+		'rname' =>$rname,
 		'sources_b'		=> $births,
 		'sources_m'		=> $marriages,
 		'sources_d'		=> $deaths,
