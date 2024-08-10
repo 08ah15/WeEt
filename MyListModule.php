@@ -337,7 +337,7 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
         }
         
         
-        return $this->viewResponse('../../modules_v4/WeEt/resources/views/page', [
+        return $this->viewResponse('../../modules_v4/WeEt-main/resources/views/page', [
         	'archives'		=> $repos,
         	'count_b'         	=> $count_b,
         	'count_m'         	=> $count_m,
