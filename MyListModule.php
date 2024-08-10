@@ -314,7 +314,7 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
         $repo 	  = Validator::queryParams($request)->string('repo', '');
         $noObj   = Validator::queryParams($request)->boolean('noObj', true);
         $filter  = Validator::queryParams($request)->boolean('filter', true);
-		
+	$rname = '';	
        
          
         if ($go) {
