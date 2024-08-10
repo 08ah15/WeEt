@@ -377,7 +377,9 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
             ->filter(GedcomRecord::accessFilter())
             ; 
 //		  if ($archives->isEmpty){break;}	
-//      $arch = [];     
+
+//      $arch = [];      
+
 //        foreach ($archives as $archive) {      
 //        	  $archive->fullName();
 //			  array_push($archives,$archive->extractName()); 
