@@ -78,21 +78,21 @@ use Illuminate\Support\Collection;
     									  <?= I18N::translate(', about deaths:') ?> <?= I18N::number($count_d) ?></p>
     <p class="text-center mt-4"><?= I18N::translate('Repository') ?> <?php echo ' '.$repository ?></p>
     <?php if ($sources_b->isNotEmpty()) : ?>
-        <?= view('../../modules_v4/WeEt/resources/views/source-list/page', [
+        <?= view('../../modules_v4/WeEt-main/resources/views/source-list/page', [
 				'sources'		=> $sources_b,
             'title'     	=> I18N::translate('Birth'),
             'tree'      	=> $tree,
         ]) ?>
     <?php endif ?> 
     <?php if ($sources_m->isNotEmpty()) : ?>
-        <?= view('../../modules_v4/WeEt/resources/views/source-list/page', [
+        <?= view('../../modules_v4/WeEt-main/resources/views/source-list/page', [
 				'sources'		=> $sources_m,
             'title'     	=> I18N::translate('Marriage'),
             'tree'      	=> $tree,
         ]) ?> 
     <?php endif ?> 
     <?php if ($sources_d->isNotEmpty()) : ?>
-        <?= view('../../modules_v4/WeEt/resources/views/source-list/page', [
+        <?= view('../../modules_v4/WeEt-main/resources/views/source-list/page', [
 				'sources'		=> $sources_d,
             'title'     	=> I18N::translate('Death'),
             'tree'      	=> $tree,
