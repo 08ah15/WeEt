@@ -459,6 +459,21 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
             ->uniqueStrict()
             ->filter(GedcomRecord::accessFilter());
 	 }        
+
+	/**
+ * Get detail of repository.
+ *
+ * @param Repository $repo
+ *
+ *
+ * @return array<string>(name, addrln1, addrln2, addrln3, phone)
+
+public function RepoDetail(tree $tree, string $repo): array
+{
+$repoDetails = [];
+return $repoDetails;
+}
+ 
 }
 
 class mysource extends source
