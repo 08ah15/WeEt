@@ -87,7 +87,7 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
     public const CUSTOM_WEBSITE     = 'https://github.com/' . self::GITHUB_USER . '/' . self::CUSTOM_MODULE . '/';
     public const CUSTOM_VERSION     = '0.0.3.5';
     public const CUSTOM_LAST        = 'https://raw.githubusercontent.com/' . self::GITHUB_USER . '/' .
-                                            self::CUSTOM_MODULE . '/blob/main/latest-version.txt';
+                                            self::CUSTOM_MODULE . '/blob/latest-version.txt';
 
 	
 	// Defaults
@@ -313,8 +313,7 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
         $go      = Validator::queryParams($request)->boolean('go', false);
         $repo 	  = Validator::queryParams($request)->string('repo', '');
         $noObj   = Validator::queryParams($request)->boolean('noObj', true);
-        $filter  = Validator::queryParams($request)->boolean('filter', true);
-	$rname = '';	
+        $filter  = Validator::queryParams($request)->boolean('filter', true);	
        
          
         if ($go) {
@@ -327,26 +326,25 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
 	        $count_b 	= $births->count();      
 	        $count_m 	= $marriages->count();      
 	        $count_d 	= $deaths->count();  
-		$rname = 'test';
-			//$repo->fullname;
+		$repodetail	= $this->repodets($repo, $tree);
         }
         else {
-            $births 		= new Collection();
-            $marriages 		= new Collection();
-            $deaths 		= new Collection();
-	         $count_b 	= 0;      
-	         $count_m 	= 0;      
-	         $count_d 	= 0;                 			
+        	$births 	= new Collection();
+        	$marriages 	= new Collection();
+        	$deaths 	= new Collection();
+		$count_b 	= 0;      
+	        $count_m 	= 0;      
+	        $count_d 	= 0;
+		$repodetail	= [];
         }
         
         
-        return $this->viewResponse('../../modules_v4/WeEt-main/resources/views/page', [
+        return $this->viewResponse('../../modules_v4/WeEt/resources/views/page', [
         	'archives'		=> $repos,
         	'count_b'         	=> $count_b,
         	'count_m'         	=> $count_m,
         	'count_d'         	=> $count_d,
-        	'repository'   		=> $repo,
-		'rname' =>$rname,
+        	'repository'   		=> $repodetail,
 		'sources_b'		=> $births,
 		'sources_m'		=> $marriages,
 		'sources_d'		=> $deaths,
@@ -424,6 +422,45 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
         return $filtered_sources;	
     }
 
+   /**
+     * Get details of repository.
+     *
+     * @param Tree   $tree       find repository in this tree
+     * @param string $repo       repository to search
+     *
+     * @return string
+     */
+    protected function repodets ($xref, Tree $tree)
+    {
+	$query =  DB::table('other')
+            	->where('o_id', '=', $xref)
+            	->where('o_file', '=', $tree->id())
+            	->where('o_type', '=', Repository::RECORD_TYPE)
+        	->value('o_gedcom');
+	$details	=[];
+	$posstart 	= strpos($query, 'NAME')+5;
+	$posend		= strpos($query, '1', $posstart);
+	$name		= substr($query, $posstart, $posend-$posstart);
+	$details[0]	= $name;
+	$posstart 	= strpos($query, 'ADDR', $posstart)+5;
+	$posend		= strpos($query, '2', $posstart);
+	$add1		= substr($query, $posstart, $posend-$posstart);	
+	$details[1]	= $add1;	
+	$posstart 	= strpos($query, 'CONT', $posstart)+5;
+	$posend		= strpos($query, '2', $posstart);
+	$add2		= substr($query, $posstart, $posend-$posstart);
+	$details[2]	= $add2;		
+	$posstart 	= strpos($query, 'CONT', $posstart)+5;
+	$posend		= strpos($query, 'PHON', $posstart);
+	$add3		= substr($query, $posstart, $posend-$posstart-3);	
+	$details[3]	= $add3;			
+	$posstart 	= strpos($query, 'PHON', $posstart)+5;
+	$posend		= strpos($query, 'EMAIL', $posstart);
+	$phon		= substr($query, $posstart, $posend-$posstart-3);
+	$details[4]	= $phon;		
+	return $details;
+    }
+
 	
      /**
      * Generate a list of all sources matching the criteria in a current tree.
@@ -459,20 +496,6 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
             ->uniqueStrict()
             ->filter(GedcomRecord::accessFilter());
 	 }        
-
-	/**
- * Get detail of repository.
- *
- * @param Repository $repo
- *
- *
- * @return array<string>(name, addrln1, addrln2, addrln3, phone)
-
-public function RepoDetail(tree $tree, string $repo): array
-{
-$repoDetails = [];
-return $repoDetails;
-}
  
 }
 
