@@ -13,17 +13,17 @@ use Fisharebest\Webtrees\Tree;
 use Illuminate\Support\Collection;
 
 /**
- * @var string     					$title
- * @var Repository|null 			$repository
- * @var bool		      			$sort
- * @var bool		      			$filter
- * @var Collection<int,Sources>	$sources_b
- * @var Collection<int,Sources>	$sources_m
- * @var Collection<int,Sources>	$sources_d
- * @var int								$count_b
- * @var int								$count_m
- * @var int								$count_d 
- * @var Tree            			$tree
+ * @var string     			$title
+ * @var Repository|null 		$repository
+ * @var bool		      		$sort
+ * @var bool		      		$filter
+ * @var Collection<int,Sources>		$sources_b
+ * @var Collection<int,Sources>		$sources_m
+ * @var Collection<int,Sources>		$sources_d
+ * @var int				$count_b
+ * @var int				$count_m
+ * @var int				$count_d 
+ * @var Tree            		$tree
  */
 
 ?>
@@ -73,26 +73,26 @@ use Illuminate\Support\Collection;
 </form>
 
 <div class="wt-page-content">
-    <p class="text-center mt-4"><?= I18N::translate('Sources found about births:') ?> <?= I18N::number($count_b) ?>
-    									  <?= I18N::translate(', about marriages:') ?> <?= I18N::number($count_m) ?>
-    									  <?= I18N::translate(', about deaths:') ?> <?= I18N::number($count_d) ?></p>
-    <p class="text-center mt-4"><?= I18N::translate('Repository') ?> <?php echo ' '.$repository.' '.$rname ?></p>
+    <p class="text-center mt-4">	<?= I18N::translate('Sources found about births:') ?> <?= I18N::number($count_b) ?>
+    					<?= I18N::translate(', about marriages:') ?> <?= I18N::number($count_m) ?>
+    					<?= I18N::translate(', about deaths:') ?> <?= I18N::number($count_d) ?></p>
+    <p class="text-center mt-4"><?php echo $repository[0].'<br>'.$repository[1].'<br>'.$repository[2].'<br>'.$repository[3].'<br>'.$repository[4] ?></p>
     <?php if ($sources_b->isNotEmpty()) : ?>
-        <?= view('../../modules_v4/WeEt-main/resources/views/source-list/page', [
+        <?= view('../../modules_v4/WeEt/resources/views/source-list/page', [
 				'sources'		=> $sources_b,
             'title'     	=> I18N::translate('Birth'),
             'tree'      	=> $tree,
         ]) ?>
     <?php endif ?> 
     <?php if ($sources_m->isNotEmpty()) : ?>
-        <?= view('../../modules_v4/WeEt-main/resources/views/source-list/page', [
+        <?= view('../../modules_v4/WeEt/resources/views/source-list/page', [
 				'sources'		=> $sources_m,
             'title'     	=> I18N::translate('Marriage'),
             'tree'      	=> $tree,
         ]) ?> 
     <?php endif ?> 
     <?php if ($sources_d->isNotEmpty()) : ?>
-        <?= view('../../modules_v4/WeEt-main/resources/views/source-list/page', [
+        <?= view('../../modules_v4/WeEt/resources/views/source-list/page', [
 				'sources'		=> $sources_d,
             'title'     	=> I18N::translate('Death'),
             'tree'      	=> $tree,
