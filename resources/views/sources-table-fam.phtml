@@ -69,42 +69,12 @@ function families(Tree $tree, source $src)
 		$wfullname = substr(json_encode($nwquery),12,-3);
 		
 		if($hfullname<>"" || $wfullname<>""){
-		echo mb_convert_encoding(implode(json_decode('["' . $hfullname . '"]')), 'ISO-8859-1', 'UTF-8');
+		echo htmlentities(implode(json_decode('["' . $hfullname . '"]')));
 		echo " + ";
-		echo mb_convert_encoding(implode(json_decode('["' . $wfullname . '"]')), 'ISO-8859-1', 'UTF-8');
+		echo htmlentities(implode(json_decode('["' . $wfullname . '"]')));
 		echo "; ";		
 		}
 
-
-		
-//		$query = DB::table('name')
-//			->join('link', static function (JoinClause $join): void {
-//	    			$join->on('l_from', '=', 'n_id');
-//		         $join->on('l_file', '=', 'n_file');
-//	    })
-//		   -> where ('l_type', '=', 'HUSB')
-//      	-> where ('l_file', '=', $tree -> id())
-//	      -> where ('l_from', '=', 'X3161')
-//   	   -> select ('n_full')
-//			-> get();
-
-//		echo $query;
-
-//		$fullname = substr(json_encode($query),11,-2);
-//		echo mb_convert_encoding(implode(json_decode('["' . $fullname . '"]')), 'ISO-8859-1', 'UTF-8');
-//		echo ", ";
-//		$query = DB::table('name')
-//			->join('link', static function (JoinClause $join): void {
-//	    			$join->on('l_from', '=', 'n_id');
-//		         $join->on('l_file', '=', 'n_file');
-//	    })
-//		   -> where ('l_type', '=', 'WIFE')
-//      	-> where ('l_file', '=', $tree -> id())
-//	      -> where ('l_from', '=', $fam -> xref())
-//   	   -> select ('n_full')
-//			-> get();
-//		$fullname = substr(json_encode($query[$i]),11,-2);
-//		echo mb_convert_encoding(implode(json_decode('["' . $fullname . '"]')), 'ISO-8859-1', 'UTF-8');
 		}
 	}
  
