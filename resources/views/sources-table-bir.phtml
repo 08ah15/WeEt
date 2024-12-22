@@ -27,19 +27,18 @@ use Illuminate\Support\Collection;
  * @param Tree          $tree
  * @param Source        $src
  *
- * 
  */
 function individuals(Tree $tree, source $src)
 	{
 	$query = DB::table('name')
 		->join('link', static function (JoinClause $join): void {
-	    			$join->on('l_from', '=', 'n_id');
-		         $join->on('l_file', '=', 'n_file');
-	    })
-	   -> where ('l_type', '=', 'SOUR')
-      -> where ('n_file', '=', $tree -> id())
-      -> where ('l_to', '=', $src -> xref())
-      -> select ('n_full')
+				$join->on('l_from', '=', 'n_id');
+				$join->on('l_file', '=', 'n_file');
+			})
+		-> where ('l_type', '=', 'SOUR')
+		-> where ('n_file', '=', $tree -> id())
+		-> where ('l_to', '=', $src -> xref())
+		-> select ('n_full')
 		-> get();
 
 	for ($i = 0; $i <= count($query)-1; $i++){
@@ -49,57 +48,57 @@ function individuals(Tree $tree, source $src)
 		}
 
 	}
-  
+$order[] = [1,'DESC'];
 ?>
 
 <h2 class="wt-page-title">
-    <?= $title ?>
+	<?= $title ?>
 </h2>
 
 <table
-    class="table table-bordered table-sm wt-table-source datatables d-none"
-        <?= view('lists/datatables-attributes') ?> 
-    	  data-columns="<?= e(json_encode([
-        ['type' => 'html'],
-        null,
-  		  ['type' => 'html'],
-    ], JSON_THROW_ON_ERROR)) ?>"
+	class="table table-bordered table-sm wt-table-source datatables d-none"
+		<?= view('lists/datatables-attributes') ?>
+			data-columns="<?= e(json_encode([
+				['type' => 'html'],
+				null,
+				['type' => 'html'],
+			], JSON_THROW_ON_ERROR)) ?>"
+			data-order="<?=e(json_encode([[1,'ASC']],JSON_THROW_ON_ERROR)) ?>"
+>
 
-    <caption class="visually-hidden">
-        <?= $caption ?? I18N::translate('Sources') ?>
-    </caption>
+	<caption class="visually-hidden">
+		<?= $caption ?? I18N::translate('Sources') ?>
+	</caption>
 
-    <thead>
-        <tr>
-            <th><?= I18N::translate('Title') ?></th>
-            <th class="d-none d-md-table-cell"><?= I18N::translate('Publication') ?></th>
-            <th class="d-none d-md-table-cell"><?= I18N::translate('Individuals') ?></th>
-        </tr>
-    </thead>
+	<thead>
+		<tr>
+			<th><?= I18N::translate('Title') ?></th>
+			<th class="d-none d-md-table-cell"><?= I18N::translate('Publication') ?></th>
+			<th class="d-none d-md-table-cell"><?= I18N::translate('Individuals') ?></th>
+		</tr>
+	</thead>
 
-    <tbody>
-        <?php foreach ($sources as $source) : ?>
-            <tr class="<?= $source->isPendingAddition() ? 'wt-new' : '' ?> <?= $source->isPendingDeletion() ? 'wt-old' : '' ?>">
-                <!-- Title -->
-                <td class="d-none d-md-table-cell"> 
-                    <a href="<?= e($source->url()) ?>">
-                        <?= $source->fullName() ?>
-                    </a>
-                </td>
+	<tbody>
+		<?php foreach ($sources as $source) : ?>
+		<tr class="<?= $source->isPendingAddition() ? 'wt-new' : '' ?> <?= $source->isPendingDeletion() ? 'wt-old' : '' ?>">
+			<!-- Title -->
+			<td class="d-none d-md-table-cell">
+				<a href="<?= e($source->url()) ?>">
+					<?= $source->fullName() ?>
+				</a>
+			</td>
 
-                <!-- Publisher -->
-                <td class="d-none d-md-table-cell">
-                    <?= Registry::elementFactory()->make('SOUR:PUBL')->value($source->facts(['PUBL'])->isNotEmpty() ? $source->facts(['PUBL'])->first()->value() : '', $tree) ?>
-                </td>
+			<!-- Publisher -->
+			<!-- <td class=$order[] = [1,'DESC'];"d-none d-md-table-cell"> -->
+			<td class="text-center" data-sort="<?= e($source->facts(['PUBL'])->first()->value()) ?>">
+				<?= Registry::elementFactory()->make('SOUR:PUBL')->value($source->facts(['PUBL'])->isNotEmpty() ? $source->facts(['PUBL'])->first()->value() : '', $tree) ?>
+			</td>
 
-                <!-- Linked individual/family -->
-                <td class="d-none d-md-table-cell"> 
-<!--					 <td class="text-center" data-sort="<?= $count_individuals[$source->xref()] ?? 0 ?>"> -->
-<!--                    	<?= $count_individuals[$source->xref()] ?? 0 ?> -->
-        				<?php Individuals($tree, $source); ?> 
-        				
-                </td> 
-            </tr>
-        <?php endforeach ?>
-    </tbody>
+			<!-- Linked individual/family -->
+			<td class="d-none d-md-table-cell"> 
+				<?php Individuals($tree, $source); ?>
+			</td>
+		</tr>
+		<?php endforeach ?>
+	</tbody>
 </table>
