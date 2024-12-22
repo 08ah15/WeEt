@@ -15,101 +15,118 @@ use Fisharebest\Webtrees\GedcomRecord;
 use Fisharebest\Webtrees\Fact;
 
 /**
- * @var string     					$title
- * @var Repository|null 			$repository
- * @var bool		      			$sort
- * @var bool		      			$filter
- * @var Collection<int,Sources>	$sources_b
- * @var Collection<int,Sources>	$sources_m
- * @var Collection<int,Sources>	$sources_d
- * @var int								$count_b
- * @var int								$count_m
- * @var int								$count_d 
- * @var Tree            			$tree
- * @var Repository|null 			$rname
+ * @var string                  	$title
+ * @var Repository|null         	$repository
+ * @var bool                    	$sort
+ * @var bool                    	$filter
+ * @var Collection<int,Sources> 	$sources_b
+ * @var Collection<int,Sources> 	$sources_m
+ * @var Collection<int,Sources> 	$sources_d
+ * @var int                     	$count_b
+ * @var int                     	$count_m
+ * @var int                     	$count_d 
+ * @var Tree                    	$tree
+ * @var Repository|null         	$rname
  */
 
 ?>
 
 <h2 class="wt-page-title">
-    <?= $title ?>
+	<?= $title ?>
 </h2>
 
 <form method="post" class="wt-page-options wt-page-options-media-list d-print-none">
-    <div class="row">
-        <label class="col-sm-3 col-form-label wt-page-options-label" for="repository">
-            <?= I18N::translate('Repository') ?>
-        </label>
-        <div class="col-sm-9 wt-page-options-value">
-            <?= view('components/select-repository', ['name' => 'repository', 'id' => '', 'repository' => $repository, 'tree' => $tree]) ?>
-        </div>
-    </div>
+	<div class="row">
+		<label class="col-sm-3 col-form-label wt-page-options-label" for="repository">
+			<?= I18N::translate('Repository') ?>
+		</label>
+		<div class="col-sm-9 wt-page-options-value">
+			<?= view('components/select-repository', ['name' => 'repository', 'id' => '', 'repository' => $repository, 'tree' => $tree]) ?>
+		</div>
+	</div>
 
-    <div class="row">
-        <label class="col-sm-3 col-form-label wt-page-options-label" for="noObj">
-            <?= I18N::translate('select source without media object, only') ?>
-        </label>
-        <div class="col-sm-9 wt-page-options-value">
-            <?= view('components/checkbox-inline', ['label' => /* I18N: Label for check-box */ I18N::translate('Without objects'), 'name' => 'noObj', 'checked' => $noObj]) ?> 
-        </div>
-    </div>
+	<div class="row">
+		<label class="col-sm-3 col-form-label wt-page-options-label" for="noObj">
+			<?= I18N::translate('select source without media object, only') ?>
+		</label>
+		<div class="col-sm-9 wt-page-options-value">
+			<?= view('components/checkbox-inline', ['label' => /* I18N: Label for check-box */ I18N::translate('Without objects'), 'name' => 'noObj', 'checked' => $noObj]) ?> 
+		</div>
+	</div>
 
-    <div class="row">
-        <label class="col-sm-3 col-form-label wt-page-options-label" for="filter">
-            <?= I18N::translate('filter for accessable by German Personal Status Act') ?>
-        </label>
-        <div class="col-sm-9 wt-page-options-value">
-            <?= view('components/checkbox-inline', ['label' => /* I18N: Label for check-box */ I18N::translate('Access under Germann PStG'), 'name' => 'filter', 'checked' => $filter]) ?>
-        </div>
-    </div>
+	<div class="row">
+		<label class="col-sm-3 col-form-label wt-page-options-label" for="filter">
+			<?= I18N::translate('filter for accessable by German Personal Status Act') ?>
+		</label>
+		<div class="col-sm-9 wt-page-options-value">
+			<?= view('components/checkbox-inline', ['label' => /* I18N: Label for check-box */ I18N::translate('Access under Germann PStG'), 'name' => 'filter', 'checked' => $filter]) ?>
+		</div>
+	</div>
 
-    <div class="row mb-3">
-        <div class="col-sm-3 wt-page-options-label"></div>
-        <div class="col-sm-9 wt-page-options-value">
-            <button type="submit" class="btn btn-primary">
-                <?= /* I18N: A button label. */ I18N::translate('search') ?>
-            </button>
-        </div>
-    </div>
+	<div class="row mb-3">
+		<div class="col-sm-3 wt-page-options-label"></div>
+		<div class="col-sm-9 wt-page-options-value">
+			<button type="submit" class="btn btn-primary">
+				<?= /* I18N: A button label. */ I18N::translate('search') ?>
+			</button>
+		</div>
+	</div>
 
-    <?= csrf_field() ?>
+	<?= csrf_field() ?>
 </form>
 
 <div class="wt-page-content">
-    <p class="text-center mt-4"><?= I18N::translate('Sources found about births:') ?> <?= I18N::number($count_b) ?>
-    									  <?= I18N::translate(', about marriages:') ?> <?= I18N::number($count_m) ?>
-    									  <?= I18N::translate(', about deaths:') ?> <?= I18N::number($count_d) ?></p>
-    <p class="text-left mt-4"><?= I18N::translate('Repository') ?> <?php echo ': '?>  
-    <?php if ($rname) : ?>
-        <?= $rname->fullName() ?>
-    <?php endif ?> 
-	 </p>
-    <p class="text-right mt-4">  
-    <?php if ($rname) : ?>
-        <?= Registry::elementFactory()->make('REPO:ADDR')->value($rname->facts(['ADDR'])->isNotEmpty() ? $rname->facts(['ADDR'])->first()->value() : '', $tree) ?><?php echo '<BR>'?>
-        <?= Registry::elementFactory()->make('REPO:PHON')->value($rname->facts(['PHON'])->isNotEmpty() ? $rname->facts(['PHON'])->first()->value() : '', $tree) ?>
-    <?php endif ?> 
-	 </p>
+	<?php if ($rname) : ?>
+			<p class="text-center mt-4"><?= I18N::translate('Sources found about births:') ?> <?= I18N::number($count_b) ?>
+										<?= I18N::translate(', about marriages:') ?> <?= I18N::number($count_m) ?>
+										<?= I18N::translate(', about deaths:') ?> <?= I18N::number($count_d) ?></p>
 
-    <?php if ($sources_b->isNotEmpty()) : ?>
-        <?= view('../../modules_v4/WeEt/resources/views/sources-table-bir', [
+			<p class="text-left mt-4"><?= I18N::translate('Repository') ?> <?php echo ': '?>
+				<?= $rname->fullName() ?>
+			</p>
+	<?php endif ?>
+
+	<p class="text-right mt-4">
+	<?php if ($rname) : ?>
+		<?= Registry::elementFactory()->make('REPO:ADDR')->value($rname->facts(['ADDR'])->isNotEmpty() ? $rname->facts(['ADDR'])->first()->value() : '', $tree) ?><?php echo '<BR>'?>
+		<?= Registry::elementFactory()->make('REPO:PHON')->value($rname->facts(['PHON'])->isNotEmpty() ? $rname->facts(['PHON'])->first()->value() : '', $tree) ?>
+	<?php endif ?>
+	</p>
+
+	<?php if ($sources_b->isNotEmpty()) : ?>
+		<?= view('../../modules_v4/WeEt/resources/views/sources-table-bir', [
 				'sources'		=> $sources_b,
-            'title'     	=> I18N::translate('Birth'),
-            'tree'      	=> $tree,
-        ]) ?>
-    <?php endif ?> 
-    <?php if ($sources_m->isNotEmpty()) : ?>
-        <?= view('../../modules_v4/WeEt/resources/views/sources-table-fam', [
+				'title' 		=> I18N::translate('Birth'),
+				'tree'  		=> $tree,
+			]) ?>
+	<?php endif ?>
+	<?php if ($sources_m->isNotEmpty()) : ?>
+		<?= view('../../modules_v4/WeEt/resources/views/sources-table-fam', [
 				'sources'		=> $sources_m,
-            'title'     	=> I18N::translate('Marriage'),
-            'tree'      	=> $tree,
-        ]) ?> 
-    <?php endif ?> 
-    <?php if ($sources_d->isNotEmpty()) : ?>
-        <?= view('../../modules_v4/WeEt/resources/views/sources-table-dea', [
+				'title' 		=> I18N::translate('Marriage'),
+				'tree'  		=> $tree,
+			]) ?>
+	<?php endif ?>
+	<?php if ($sources_d->isNotEmpty()) : ?>
+		<?= view('../../modules_v4/WeEt/resources/views/sources-table-dea', [
 				'sources'		=> $sources_d,
-            'title'     	=> I18N::translate('Death'),
-            'tree'      	=> $tree,
-        ]) ?> 
-    <?php endif ?> 
+				'title' 		=> I18N::translate('Death'),
+				'tree'  		=> $tree,
+			]) ?>
+	<?php endif ?>
+	<?php if ($sources_b->isNotEmpty() OR $sources_m->isNotEmpty() OR $sources_d->isNotEmpty()) : ?>
+		<form method="post" class="wt-page-options wt-page-options-media-list d-print-none">
+			<div class="row mb-3">
+				<div class="col-sm-3 wt-page-options-label"></div>
+				<div class="col-sm-9 wt-page-options-value">
+					<button type="submit" class="btn btn-secondary text-right">
+						<?= /* I18N: A button label. */ I18N::translate('file') ?>
+					</button>
+				</div>
+			</div>
+			<?= csrf_field() ?>
+		</form>
+	<?php endif ?>
+	
+	
 </div>
