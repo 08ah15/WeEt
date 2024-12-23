@@ -85,7 +85,7 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
 	public const CUSTOM_AUTHOR      = 'Dr. Ansgar M. Häger';
 	public const GITHUB_USER        = '08ah15';
 	public const CUSTOM_WEBSITE     = 'https://github.com/' . self::GITHUB_USER . '/' . self::CUSTOM_MODULE . '/';
-	public const CUSTOM_VERSION     = '0.0.3.8';
+	public const CUSTOM_VERSION     = '0.0.3.9';
 	public const CUSTOM_LAST        = 'https://raw.githubusercontent.com/' . self::GITHUB_USER . '/' .self::CUSTOM_MODULE . '/main/latest-version.txt';
 
 	// Defaults
@@ -205,6 +205,11 @@ class MyListModule extends AbstractModule implements ModuleCustomInterface, Modu
 			case 'de':
 				return [
 					'unkown'                                          => 'unbekannt',
+					'Sources found about births:'                     => 'Quellen gefunden über Geburten:',
+					', about marriages:'                              => ', über Heiraten:',
+					', about deaths:'                                 => ', über Sterbefälle:',
+					'Create file of format:'                          => 'Erzeuge Datei im Format:',
+					'create file'                                     => 'Erzeuge Datei',
 				];
 
 			case 'some-other-language':
