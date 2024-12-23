@@ -10,6 +10,9 @@ use Fisharebest\Webtrees\Module\ModuleListInterface;
 use Fisharebest\Webtrees\Registry;
 use Fisharebest\Webtrees\Services\LinkedRecordService;
 use Fisharebest\Webtrees\Tree;
+use Illuminate\Database\Capsule\Manager as DB;
+use Illuminate\Database\Query\Expression;
+use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Collection;
 use Fisharebest\Webtrees\GedcomRecord;
 use Fisharebest\Webtrees\Fact;
@@ -24,11 +27,98 @@ use Fisharebest\Webtrees\Fact;
  * @var Collection<int,Sources> 	$sources_d
  * @var int                     	$count_b
  * @var int                     	$count_m
- * @var int                     	$count_d 
+ * @var int                     	$count_d
  * @var Tree                    	$tree
  * @var Repository|null         	$rname
  */
 
+/**
+ * Fetch a list of individuals with specified Linked to a source
+ *
+ * @param Tree          $tree
+ * @param Source        $src
+ *
+ */
+function borns(Tree $tree, source $src): string
+{
+	$query = DB::table('name')
+		->join('link', static function (JoinClause $join): void {
+				$join->on('l_from', '=', 'n_id');
+				$join->on('l_file', '=', 'n_file');
+			})
+		-> where ('l_type', '=', 'SOUR')
+		-> where ('n_file', '=', $tree -> id())
+		-> where ('l_to', '=', $src -> xref())
+		-> select ('n_full')
+		-> get();
+	$string='';
+	for ($i = 0; $i <= count($query)-1; $i++){
+		if ($i > 0){$string .= ", ";}
+		$fullname = substr(json_encode($query[$i]),11,-2);
+		$string .= htmlentities(implode(json_decode('["' . $fullname . '"]')));
+	}
+	return $string;
+}
+
+function fams(Tree $tree, source $src): string
+{
+	$fquery = DB::table('link')
+			-> where ('l_type', '=', 'SOUR')
+			-> where ('l_file', '=', $tree -> id())
+			-> where ('l_to', '=', $src -> xref())
+			-> select ('l_from')
+			-> get();
+	$string='';
+	foreach ($fquery as $fam){
+		$a = substr(json_encode($fam),11,-2);
+		$hquery = DB::table('link')
+			-> where ('l_type', '=', 'HUSB')
+			-> where ('l_file', '=', $tree -> id())
+			-> where ('l_from', '=', $a)
+			-> select ('l_to')
+			-> get();		
+		$husb = substr(json_encode($hquery),10,-3);
+		$nhquery = DB::table('name')
+			-> where ('n_file', '=', $tree -> id())
+			-> where ('n_id', '=', $husb)
+			-> select ('n_full')
+			-> get();
+		$hfullname = substr(json_encode($nhquery),12,-3);
+
+		$wquery = DB::table('link')
+			-> where ('l_type', '=', 'WIFE')
+			-> where ('l_file', '=', $tree -> id())
+			-> where ('l_from', '=', $a)
+			-> select ('l_to')
+			-> get();
+		$wife = substr(json_encode($wquery),10,-3);
+		$nwquery = DB::table('name')
+			-> where ('n_type', '=', 'NAME')
+			-> where ('n_file', '=', $tree -> id())
+			-> where ('n_id', '=', $wife)
+			-> select ('n_full')
+			-> get();
+		$wfullname = substr(json_encode($nwquery),12,-3);
+
+		if($hfullname<>"" || $wfullname<>""){
+			if($hfullname<>""){
+				$string .= htmlentities(implode(json_decode('["' . $hfullname . '"]')));
+				}
+			else{
+				$string .= I18N::translate('unkown');
+				}
+			$string .= " + ";
+			if($wfullname<>""){
+				$string .= htmlentities(implode(json_decode('["' . $wfullname . '"]')));
+				}
+			else{
+				$string .= I18N::translate('unkown');
+				}
+			$string .= "; ";
+			}
+		}
+	return $string;
+}
 ?>
 
 <h2 class="wt-page-title">
@@ -50,7 +140,7 @@ use Fisharebest\Webtrees\Fact;
 			<?= I18N::translate('select source without media object, only') ?>
 		</label>
 		<div class="col-sm-9 wt-page-options-value">
-			<?= view('components/checkbox-inline', ['label' => /* I18N: Label for check-box */ I18N::translate('Without objects'), 'name' => 'noObj', 'checked' => $noObj]) ?> 
+			<?= view('components/checkbox-inline', ['label' => /* I18N: Label for check-box */ I18N::translate('Without objects'), 'name' => 'noObj', 'checked' => $noObj]) ?>
 		</div>
 	</div>
 
@@ -75,52 +165,114 @@ use Fisharebest\Webtrees\Fact;
 	<?= csrf_field() ?>
 </form>
 
-<div class="wt-page-content">
-	<?php if ($rname) : ?>
-			<p class="text-center mt-4"><?= I18N::translate('Sources found about births:') ?> <?= I18N::number($count_b) ?>
-										<?= I18N::translate(', about marriages:') ?> <?= I18N::number($count_m) ?>
-										<?= I18N::translate(', about deaths:') ?> <?= I18N::number($count_d) ?></p>
+<?php $html = '';
+	$html .= '<div class="wt-page-content">';
+	if($sources_b->isNotEmpty() OR $sources_m->isNotEmpty() OR $sources_d->isNotEmpty()){
+		$html .= '<p class="text-center mt-4">';
+		$html .=  I18N::translate("Sources found about births:") . ' ';
+		$html .=  I18N::number($count_b) . I18N::translate(", about marriages:") . ' ' . I18N::number($count_m) . I18N::translate(", about deaths:") . ' ' . I18N::number($count_d);
+		$html .= '</p>';
+	}
+	$html .= '<h3 class="text-right mt-4">';
+	if($rname){
+		$html .= '<h3 class="text-left mt-4">' . I18N::translate('Repository') . ': ';
+		$html .=  $rname->fullName();
+		$html .= '</h3>';
+		$html .= Registry::elementFactory()->make('REPO:ADDR')->value($rname->facts(['ADDR'])->isNotEmpty() ? $rname->facts(['ADDR'])->first()->value() : '', $tree) . '<BR>';
+		$html .= Registry::elementFactory()->make('REPO:PHON')->value($rname->facts(['PHON'])->isNotEmpty() ? $rname->facts(['PHON'])->first()->value() : '', $tree);
+	}
+	$html .= '</h3>';
+	
+	if($sources_b->isNotEmpty()){
+		$html .= '<h2 class="wt-page-title">' . I18N::translate('Birth') . '</h2>';
+		$html .= '<table class="table table-bordered table-sm wt-table-source datatables d-none"'
+					. view('lists/datatables-attributes')
+					. 'data-columns="' . e(json_encode([['type' => 'html'], null, ['type' => 'html'], ], JSON_THROW_ON_ERROR)) . '"'
+					. 'data-order="' . e(json_encode([[1,'DESC']],JSON_THROW_ON_ERROR)) . '" >';
+		$html .= '<thead><tr><th width=37%>' . I18N::translate('Title') . '</th>
+					<th class="d-none d-md-table-cell" width=13%>' . I18N::translate('Publication') . '</th>
+					<th class="d-none d-md-table-cell" width=50%>' . I18N::translate('Individuals') . '</th>
+					</tr></thead>';
+		$html .= '<tbody>';
+			foreach ($sources_b as $source){
+				$html .= '<tr >'; /*. $source->isPendingAddition() ? 'wt-new' : ''  $source->isPendingDeletion() ? 'wt-old' : ''  .'>'; /* Übersetzung von phtml in php fehlt */
+				/* Title */
+				$html .= '<td class="d-none d-md-table-cell"> <a href="' . e($source->url()) . '">' . $source->fullName() . '</a></td>';
+				/* Publisher */
+				$html .= '<td class="text-center" data-sort="' . e($source->facts(['PUBL'])->first()->value()) . Registry::elementFactory()->make('SOUR:PUBL')->value($source->facts(['PUBL'])->isNotEmpty() ? $source->facts(['PUBL'])->first()->value() : '', $tree) . '</td>';
+				/* Linked individual */
+				$html .= '<td class="d-none d-md-table-cell">' . borns($tree, $source) . '</td>';
+				$html .= '</tr>';
+			}
+		$html .= '</tbody>';
+		$html .= '</table>';
+	}
 
-			<p class="text-left mt-4"><?= I18N::translate('Repository') ?> <?php echo ': '?>
-				<?= $rname->fullName() ?>
-			</p>
-	<?php endif ?>
+	if($sources_m->isNotEmpty()){
+		$html .= '<h2 class="wt-page-title">' . I18N::translate('Marriage') . '</h2>';
+		$html .= '<table class="table table-bordered table-sm wt-table-source datatables d-none" '
+					. view('lists/datatables-attributes')
+					. 'data-columns="' . e(json_encode([['type' => 'html'], null, ['type' => 'html'], ], JSON_THROW_ON_ERROR)) . '"'
+					. 'data-order="' . e(json_encode([[1,'DESC']],JSON_THROW_ON_ERROR)) . '" >';
+		$html .= '<thead><tr><th width=37%>' . I18N::translate('Title') . '</th>
+					<th class="d-none d-md-table-cell" width=13%>' . I18N::translate('Publication') . '</th>
+					<th class="d-none d-md-table-cell" width=50%>' . I18N::translate('Families') . '</th>
+					</tr></thead>';
+		$html .= '<tbody>';
+			foreach ($sources_m as $source){
+				$html .= '<tr >'; /*. $source->isPendingAddition() ? 'wt-new' : ''  $source->isPendingDeletion() ? 'wt-old' : ''  .'>'; /* Übersetzung von phtml in php fehlt */
+				/* Title */
+				$html .= '<td class="d-none d-md-table-cell"> <a href="' . e($source->url()) . '">' . $source->fullName() . '</a></td>';
+				/* Publisher */
+				$html .= '<td class="text-center" data-sort="' . e($source->facts(['PUBL'])->first()->value()) . Registry::elementFactory()->make('SOUR:PUBL')->value($source->facts(['PUBL'])->isNotEmpty() ? $source->facts(['PUBL'])->first()->value() : '', $tree) . '</td>';
+				/* Linked individual */
+				$html .= '<td class="d-none d-md-table-cell">' . fams($tree, $source) . '</td>';
+				$html .= '</tr>';
+			}
+		$html .= '</tbody>';
+		$html .= '</table>';
+	}
 
-	<p class="text-right mt-4">
-	<?php if ($rname) : ?>
-		<?= Registry::elementFactory()->make('REPO:ADDR')->value($rname->facts(['ADDR'])->isNotEmpty() ? $rname->facts(['ADDR'])->first()->value() : '', $tree) ?><?php echo '<BR>'?>
-		<?= Registry::elementFactory()->make('REPO:PHON')->value($rname->facts(['PHON'])->isNotEmpty() ? $rname->facts(['PHON'])->first()->value() : '', $tree) ?>
-	<?php endif ?>
-	</p>
+	if($sources_d->isNotEmpty()){
+		$html .= '<h2 class="wt-page-title">' . I18N::translate('Death') . '</h2>';
+		$html .= '<table class="table table-bordered table-sm wt-table-source datatables d-none"'
+					. view('lists/datatables-attributes')
+					. 'data-columns="' . e(json_encode([['type' => 'html'], null, ['type' => 'html'], ], JSON_THROW_ON_ERROR)) . '"'
+					. 'data-order="' . e(json_encode([[1,'DESC']],JSON_THROW_ON_ERROR)) . '" >';
+		$html .= '<thead><tr><th width=37%>' . I18N::translate('Title') . '</th>
+					<th class="d-none d-md-table-cell" width=13%>' . I18N::translate('Publication') . '</th>
+					<th class="d-none d-md-table-cell" width=50%>' . I18N::translate('Individuals') . '</th>
+					</tr></thead>';
+		$html .= '<tbody>';
+			foreach ($sources_d as $source){
+				$html .= '<tr >'; /*. $source->isPendingAddition() ? 'wt-new' : ''  $source->isPendingDeletion() ? 'wt-old' : ''  .'>'; /* Übersetzung von phtml in php fehlt */
+				/* Title */
+				$html .= '<td class="d-none d-md-table-cell"> <a href="' . e($source->url()) . '">' . $source->fullName() . '</a></td>';
+				/* Publisher */
+				$html .= '<td class="text-center" data-sort="' . e($source->facts(['PUBL'])->first()->value()) . Registry::elementFactory()->make('SOUR:PUBL')->value($source->facts(['PUBL'])->isNotEmpty() ? $source->facts(['PUBL'])->first()->value() : '', $tree) . '</td>';
+				/* Linked individual */
+				$html .= '<td class="d-none d-md-table-cell">' . borns($tree, $source) . '</td>';
+				$html .= '</tr>';
+			}
+		$html .= '</tbody>';
+		$html .= '</table>';
+	}
 
-	<?php if ($sources_b->isNotEmpty()) : ?>
-		<?= view('../../modules_v4/WeEt/resources/views/sources-table-bir', [
-				'sources'		=> $sources_b,
-				'title' 		=> I18N::translate('Birth'),
-				'tree'  		=> $tree,
-			]) ?>
-	<?php endif ?>
-	<?php if ($sources_m->isNotEmpty()) : ?>
-		<?= view('../../modules_v4/WeEt/resources/views/sources-table-fam', [
-				'sources'		=> $sources_m,
-				'title' 		=> I18N::translate('Marriage'),
-				'tree'  		=> $tree,
-			]) ?>
-	<?php endif ?>
-	<?php if ($sources_d->isNotEmpty()) : ?>
-		<?= view('../../modules_v4/WeEt/resources/views/sources-table-dea', [
-				'sources'		=> $sources_d,
-				'title' 		=> I18N::translate('Death'),
-				'tree'  		=> $tree,
-			]) ?>
-	<?php endif ?>
+echo $html .'<BR><BR>';
+?>
+
+
 	<?php if ($sources_b->isNotEmpty() OR $sources_m->isNotEmpty() OR $sources_d->isNotEmpty()) : ?>
 		<form method="post" class="wt-page-options wt-page-options-media-list d-print-none">
 			<div class="row mb-3">
-				<div class="col-sm-3 wt-page-options-label"></div>
-				<div class="col-sm-9 wt-page-options-value">
-					<button type="submit" class="btn btn-secondary text-right">
-						<?= /* I18N: A button label. */ I18N::translate('file') ?>
+				<div class="col-sm-3 wt-page-options-label"><?= I18N::translate('Create file of format:') ?></div>
+				<div class="col-sm-3 wt-page-options-value">
+					<?php $options =['','MS-Word 2007','ODT','PDF']; $writer = '';?>
+					<?= view('components/select', ['name' => 'writer', 'id' => '', 'options' => $options, 'selected' => $writer]) ?>
+				</div>
+				<div class="col-sm-6 wt-page-options-value">
+					<button type="submit" class="btn btn-secondary">
+						<?= /* I18N: A button label. */ I18N::translate('create file') ?>
 					</button>
 				</div>
 			</div>
